@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <!--<h1>Bạn có 1 đơn hàng mới</h1>-->
+    {% for item in data %}
+        <h1>{{item.product_name}}</h1>
+    {% endfor %}
+</body>
+</html>

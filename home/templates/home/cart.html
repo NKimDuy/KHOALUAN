@@ -1,0 +1,202 @@
+{% extends "home/basic.html" %}
+{% load static %}
+{% block product_css %}
+    <link rel="stylesheet" href="{% static 'home/style/product_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'home/style/product_responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'home/style/cart_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'home/style/cart_responsive.css' %}">
+{% endblock %}
+{% block content %}
+<div class="cart_section">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="cart_container">
+                    <div class="cart_title">Shopping Cart</div>
+
+                    {% for item in product %}
+                    <div class="cart_items" id="product{{item.id}}">
+                        <ul class="cart_list">
+                            <li class="cart_item clearfix">
+                                <div class="cart_item_image"><img src="{{ item.image.url }}" alt=""></div>
+                                <div class="cart_item_info d-flex flex-md-row flex-column justify-content-between">
+                                    <div class="cart_item_name cart_info_col">
+                                        <div class="cart_item_title">Name</div>
+                                        <div class="cart_item_text">{{item.product_name}}</div>
+                                    </div>
+
+                                    <div class="product_quantity clearfix">
+                                        <span>Quantity: </span>
+                                        <input id="quantity_input{{item.id}}" type="text" pattern="[0-9]*" value="1" readonly="readonly">
+                                        <div class="quantity_buttons">
+                                            <div id="quantity_inc_button{{item.id}}" class="quantity_inc quantity_control"><i class="fas fa-chevron-up"></i></div>
+                                            <div id="quantity_dec_button{{item.id}}" class="quantity_dec quantity_control"><i style="padding-left:10px;" class="fas fa-chevron-down"></i></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="cart_item_price cart_info_col">
+                                        <div class="cart_item_title">Price</div>
+                                        <div id="price{{item.id}}" class="cart_item_text">{{item.price}}</div>
+                                    </div>
+                                    <div class="cart_item_total cart_info_col">
+                                        <div class="cart_item_title">Total</div>
+                                        <div id="total_price{{item.id}}" class="cart_item_text">{{item.price}}</div>
+                                    </div>
+
+                                    <div class="cart_item_total cart_info_col">
+                                        <div class="cart_item_title"><img src="{% static 'home/images/delete.jpg' %}" alt="" width="20px" height="20px"></div>
+                                        <div class="cart_item_text"><a href="javascript:deleteProduct('{{item.id}}');" >Xóa</a></div>
+
+                                    </div>
+                                </div>
+                                <script language="Javascript">
+                                    $(document).ready(function() {
+                                        initQuantity($('#quantity_input{{item.id}}'), $('#quantity_inc_button{{item.id}}'), $('#quantity_dec_button{{item.id}}'), $('#total_price{{item.id}}'), $('#price{{item.id}}'))
+                                    });
+                                </script>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Order Total -->
+                    <div class="order_total">
+                        <div class="order_total_content text-md-right">
+                            <div class="order_total_title">Order Total:</div>
+                            <div id="order_total" class="order_total_amount">0</div>
+                            <script language="JavaScript">
+                                $(document).ready(function() {
+                                    orderTotal = $("#order_total");
+                                    var temp = 0;
+                                    {% for item in product %}
+                                        temp += parseFloat($('#total_price{{item.id}}').text());
+                                    {% endfor %}
+                                    orderTotal.text(temp + '.000.000');
+                                });
+                            </script>
+                        </div>
+                    </div>
+
+                    <div class="cart_buttons">
+                        <form action="#" method="post">
+                            {% csrf_token %}
+                            <label>sdt: </label>{{form.phone}}
+                            <label>mail: </label>{{form.mail}}
+                            <label>địa chỉ: </label>{{form.address}}
+                            <input type="hidden" name="hid_product" id="hid_product">
+                            <input type="hidden" name="hid_quantity" id="hid_quantity">
+                            <input type="hidden" name="hid_price" id="hid_price">
+                            <button id="btntext" type="submit" class="button cart_button_checkout">Đặt hàng</button>
+                            <script language="JavaScript">
+                                $(document).ready(function() {
+                                    $("#btntext").click(function() {
+                                        var hidProduct = ''; // lấy sp đã được chọn để gửi sang backend
+                                        var hidQuantity = ''; // lấy số lượng tương ứng đã được chọn để gửi sang backend
+                                        var hidPrice = ''; // lấy giá tương ứng để gửi sang backend
+                                        {% for item in product %}
+                                            hidProduct += {{item.id}} + ',';
+                                            hidQuantity += $("#quantity_input{{item.id}}").val() + ',';
+                                            hidPrice += $("#total_price{{item.id}}").text() + ',';
+                                        {% endfor %}
+                                        $("#hid_product").val(hidProduct.substring(0, hidProduct.length - 1)); // thẻ input có thuộc tính hidden để lưu các sp khi form được submit
+                                        $("#hid_quantity").val(hidQuantity.substring(0, hidQuantity.length - 1)); // thẻ input có thuộc tính hidden để lưu số lượng sp khi form được submit
+                                        $("#hid_price").val(hidPrice.substring(0, hidPrice.length - 1)); // thẻ input có thuộc tính hidden để lưu giá các sp khi form được submit
+                                        alert($("#hid_product").val());
+                                    });
+                                });
+                            </script>
+                        </form>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block product_js %}
+<script src="{% static 'home/script/js/product_custom.js' %}"></script>
+<script src="{% static 'home/script/js/cart_custom.js' %}"></script>
+
+<script language="JavaScript">
+    function deleteProduct(id) {
+        $("#product" + id).remove();
+        $.get({
+            url: "{% url 'delete_product' %}",
+            data: {
+                'id': id
+            },
+            dataType: 'json',
+            success: function(result) {
+                $("#cart_count").text(result['cart_count']);
+            }
+        });
+    }
+</script>
+
+<script language="JavaScript">
+    function initQuantity(quantity_input, quantity_inc_button, quantity_dec_button, total_price, price) {
+        if($('.product_quantity').length)
+		{
+			var input = quantity_input; // số lượng sản phẩm
+			var incButton = quantity_inc_button; // nút tăng số lượng sp
+			var decButton = quantity_dec_button; // nút giảm số lượng sp
+			var totalPrice = total_price; // tổng giá các sp
+			var price = price; // giá hiện tại từng sản phẩm
+
+
+			var originalVal; // số lượng sp hiện có
+			var endVal; // số lượng sp cuối cùng
+			var originalTotal; // tổng tiền hiện tại
+            var endTotal; // tổng tiền cuối cùng
+
+            if (input.val() == 1) // nếu sản phẩm đã = 1 thì không chp phép giảm số lượng nữa
+            {
+                decButton.css('display','none');
+            }
+
+			incButton.on('click', function()
+			{
+			    //var a = $("#order_total").text();
+			    decButton.css('display','block');
+				originalVal = input.val();
+				originalTotal = totalPrice.text();
+				endVal = parseFloat(originalVal) + 1; // mỗi lần nhấn sẽ tăng số lượng lên 1
+				endTotal = parseFloat(originalTotal) + parseFloat(price.text());
+				input.val(endVal);
+				totalPrice.text(endTotal + '.000.000'); // hiển thị tổng tiền của từng sản phẩm
+				//alert(a);
+				$("#order_total").text(parseFloat($("#order_total").text()) + parseFloat(price.text()) + '.000.000'); // hiển thị tổng số tiền của tất cả sp
+			});
+
+			decButton.on('click', function()
+			{
+				originalVal = input.val();
+				originalTotal = totalPrice.text();
+				if (originalVal > 0)
+				{
+					endVal = parseFloat(originalVal) - 1;
+					endTotal = parseFloat(originalTotal) - parseFloat(price.text());
+					input.val(endVal);
+					totalPrice.text(endTotal + '.000.000'); // hiển thị tổng tiền của từng sản phẩm
+					$("#order_total").text(parseFloat($("#order_total").text()) - parseFloat(price.text()) + '.000.000'); // hiển thị tổng số tiền
+				}
+                if (input.val() == 1)
+                {
+                    decButton.css('display','none');
+                }
+                else
+                {
+                    decButton.css('display','block');
+                }
+			});
+		}
+    }
+
+
+</script>
+
+{% endblock %}

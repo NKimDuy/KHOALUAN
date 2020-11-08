@@ -1,0 +1,95 @@
+{% extends "home/basic.html" %}
+{% load static %}
+{% block product_css %}
+    <link rel="stylesheet" href="{% static 'home/style/product_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'home/style/product_responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'home/style/cart_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'home/style/cart_responsive.css' %}">
+{% endblock %}
+{% block content %}
+<div class="cart_section">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="cart_container">
+                    <div class="cart_title">Shopping Cart</div>
+
+                    {% for item in ordered %}
+                    <div class="cart_items" id="product{{item.id}}">
+                        <ul class="cart_list">
+                            <li class="cart_item clearfix">
+                                <div class="cart_item_image"><img src="{{ item.product.image.url }}" alt=""></div>
+                                <div class="cart_item_info d-flex flex-md-row flex-column justify-content-between">
+                                    <div class="cart_item_name cart_info_col">
+                                        <div class="cart_item_title">Name</div>
+                                        <div class="cart_item_text">{{item.product}}</div>
+                                    </div>
+
+                                    <div class="cart_item_price cart_info_col">
+                                        <div class="cart_item_title">số lượng</div>
+                                        <div class="cart_item_text">{{item.quantity}}</div>
+                                    </div>
+
+                                    <div class="cart_item_total cart_info_col">
+                                        <div class="cart_item_title">giá</div>
+                                        <div class="cart_item_text" id="price_order{{item.id}}">{{item.price}}</div>
+                                    </div>
+
+                                    <div class="cart_item_total cart_info_col">
+                                        <div class="cart_item_title">Trạng thái</div>
+                                        <div class="cart_item_text" id="status{{item.id}}">{{item.status}}</div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endfor %}
+                    {% if ordered %}
+                    <div class="cart_items">
+                        <ul class="cart_list">
+                            <li class="cart_item clearfix">
+                                <div class="cart_item_info d-flex flex-md-row flex-column justify-content-between">
+                                    <div class="cart_item_name cart_info_col">
+                                        <div><strong>số điện thoại: </strong>{{phone}}</div>
+                                        <div><strong>mail: </strong>{{mail}}</div>
+                                        <div><strong>địa chỉ: </strong>{{address}}</div>
+                                    </div>
+                                    <div class="cart_item_price cart_info_col" style="border-left: 1px solid black;">
+                                        <div class="cart_item_title"></div>
+                                        <div class="cart_item_text"></div>
+                                    </div>
+                                    <div class="cart_item_price cart_info_col">
+                                        <div class="cart_item_title">Tổng tiền</div>
+                                        <div class="cart_item_text" id="total_order">0</div>
+                                        <script language="JavaScript">
+                                            $(document).ready(function() {
+                                                // tổng tiền các sp đã đặt hàng
+                                                var total = 0;
+                                                {% for item in ordered %}
+                                                    {% if item.status != 'hoàn thành' %}
+                                                        total += parseFloat($("#price_order{{item.id}}").text());
+                                                    {% endif %}
+                                                {% endfor %}
+                                                $("#total_order").text(total + '.000.000');
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block product_js %}
+<script src="{% static 'home/script/js/product_custom.js' %}"></script>
+<script src="{% static 'home/script/js/cart_custom.js' %}"></script>
+
+{% endblock %}

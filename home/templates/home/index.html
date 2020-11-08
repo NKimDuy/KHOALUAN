@@ -1,0 +1,307 @@
+{% extends "home/basic.html" %}
+{% load static %}
+
+{% block content %}
+<div class="shop">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-3">
+
+				<!-- Shop Sidebar -->
+				<div class="shop_sidebar">
+					<div class="sidebar_section">
+						<div class="sidebar_title">Categories</div>
+						<ul class="sidebar_categories">
+							<li><a href="#">Computers & Laptops</a></li>
+							<li><a href="#">Cameras & Photos</a></li>
+							<li><a href="#">Hardware</a></li>
+							<li><a href="#">Smartphones & Tablets</a></li>
+							<li><a href="#">TV & Audio</a></li>
+							<li><a href="#">Gadgets</a></li>
+							<li><a href="#">Car Electronics</a></li>
+							<li><a href="#">Video Games & Consoles</a></li>
+							<li><a href="#">Accessories</a></li>
+						</ul>
+					</div>
+					<div class="sidebar_section filter_by_section">
+						<div class="sidebar_title">Filter By</div>
+						<div class="sidebar_subtitle">Price</div>
+						<div class="filter_price">
+							<div id="slider-range" class="slider_range"></div>
+							<p>Range: </p>
+							<p><input type="text" id="amount" class="amount" readonly style="border:0; font-weight:bold;"></p>
+						</div>
+					</div>
+					<div class="sidebar_section">
+						<div class="sidebar_subtitle color_subtitle">Color</div>
+						<ul class="colors_list">
+							<li class="color"><a href="#" style="background: #b19c83;"></a></li>
+							<li class="color"><a href="#" style="background: #000000;"></a></li>
+							<li class="color"><a href="#" style="background: #999999;"></a></li>
+							<li class="color"><a href="#" style="background: #0e8ce4;"></a></li>
+							<li class="color"><a href="#" style="background: #df3b3b;"></a></li>
+							<li class="color"><a href="#" style="background: #ffffff; border: solid 1px #e1e1e1;"></a></li>
+						</ul>
+					</div>
+					<div class="sidebar_section">
+						<div class="sidebar_subtitle brands_subtitle">Brands</div>
+						<ul class="brands_list">
+							<li class="brand"><a href="#">Apple</a></li>
+							<li class="brand"><a href="#">Beoplay</a></li>
+							<li class="brand"><a href="#">Google</a></li>
+							<li class="brand"><a href="#">Meizu</a></li>
+							<li class="brand"><a href="#">OnePlus</a></li>
+							<li class="brand"><a href="#">Samsung</a></li>
+							<li class="brand"><a href="#">Sony</a></li>
+							<li class="brand"><a href="#">Xiaomi</a></li>
+						</ul>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="col-lg-9">
+
+				<!-- Shop Content -->
+
+				<div class="shop_content">
+					<div class="shop_bar clearfix">
+						<div class="shop_product_count"><span>186</span> products found</div>
+						<div class="shop_sorting">
+							<span>Sort by:</span>
+							<ul>
+								<li>
+									<span class="sorting_text">highest rated<i class="fas fa-chevron-down"></span></i>
+									<ul>
+										<li class="shop_sorting_button" data-isotope-option='{ "sortBy": "original-order" }'>highest rated</li>
+										<li class="shop_sorting_button" data-isotope-option='{ "sortBy": "name" }'>name</li>
+										<li class="shop_sorting_button"data-isotope-option='{ "sortBy": "price" }'>price</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+
+					<div class="product_grid">
+						<div class="product_grid_border"></div>
+
+						{% for item in product %}
+						<div class="product_item is_new">
+							<div class="product_border"></div>
+							<div class="product_image d-flex flex-column align-items-center justify-content-center"><a onclick="count_click({{item.id}})" href="{% url 'detail' item.id %}"><img src = "{{ item.image.url }}"></a></div>
+							<div class="product_content">
+								<div class="product_price">{{ item.price }}</div>
+								<div class="product_name"><div><a href="#" tabindex="0">{{ item.product_name }}</a></div></div>
+								<div>
+									<button id = 'btlike{{item.id}}'>
+										<img onclick="count_like({{item.id}},1)" src= "{% static 'home/images/like1.png' %}" alt="like" width="25px" height="25px">
+										<img onclick="count_like({{item.id}},2)" src= "{% static 'home/images/like2.png' %}" alt="like" width="25px" height="25px" style="display:none;">
+									</button>
+									<script>
+										$(document).ready(function() {
+											$("#btlike{{item.id}}").click(function() {
+												if ($("#btdislike{{item.id}} img:last").css("display") == 'inline') {
+													$("#btdislike{{item.id}} > img:last").css("display","none");
+													$("#btdislike{{item.id}} > img:first").css("display","inline");
+												}
+												if ($("#btlike{{item.id}} img:first").css("display") == 'inline') {
+													 $("#btlike{{item.id}} > img:first").css("display","none");
+													 $("#btlike{{item.id}} > img:last").css("display","inline");
+												}
+												else if($("#btlike{{item.id}} img:last").css("display") == 'inline') {
+													$("#btlike{{item.id}} > img:last").css("display","none");
+													$("#btlike{{item.id}} > img:first").css("display","inline");
+												}
+											});
+										});
+									</script>
+									<button id = 'btdislike{{item.id}}'>
+										<img onclick="count_dislike({{item.id}},1)" src= "{% static 'home/images/dislike1.png' %}" alt="dislike" width="25px" height="25px">
+										<img onclick="count_dislike({{item.id}},2)" src= "{% static 'home/images/dislike2.png' %}" alt="dislike" width="25px" height="25px" style="display:none;">
+									</button>
+									<script>
+										$(document).ready(function() {
+											$("#btdislike{{item.id}}").click(function() {
+												if ($("#btlike{{item.id}} img:last").css("display") == 'inline') {
+													$("#btlike{{item.id}} img:last").css("display","none");
+													$("#btlike{{item.id}} > img:first").css("display","inline");
+												}
+
+												if ($("#btdislike{{item.id}} img:first").css("display") == 'inline') {
+													//alert('abc');
+													 $("#btdislike{{item.id}} > img:first").css("display","none");
+													 $("#btdislike{{item.id}} > img:last").css("display","inline");
+												}
+												else if($("#btdislike{{item.id}} img:last").css("display") == 'inline') {
+													$("#btdislike{{item.id}} > img:last").css("display","none");
+													$("#btdislike{{item.id}} > img:first").css("display","inline");
+												}
+											});
+										});
+									</script>
+								</div>
+							</div>
+							<div class="product_fav"><i class="fas fa-heart"></i></div>
+							<ul class="product_marks">
+								<li class="product_mark product_discount">-25%</li>
+								<li class="product_mark product_new">new</li>
+							</ul>
+						</div>
+						{% endfor %}
+						<!-- Product Item -->
+
+					</div>
+
+					<!-- Shop Page Navigation -->
+
+					<div class="shop_page_nav d-flex flex-row">
+						<div class="page_prev d-flex flex-column align-items-center justify-content-center"><i class="fas fa-chevron-left"></i></div>
+						<ul class="page_nav d-flex flex-row">
+							<li><a href="#">1</a></li>
+							<li><a href="#">2</a></li>
+							<li><a href="#">3</a></li>
+							<li><a href="#">...</a></li>
+							<li><a href="#">21</a></li>
+						</ul>
+						<div class="page_next d-flex flex-column align-items-center justify-content-center"><i class="fas fa-chevron-right"></i></div>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Banner -->
+<div class="banner_2">
+	<div class="banner_2_background" style="background-image:url({% static 'home/images/banner_2_background.jpg' %})"></div>
+	<div class="banner_2_container">
+		<div class="banner_2_dots"></div>
+		<!-- Banner 2 Slider -->
+
+		<div class="owl-carousel owl-theme banner_2_slider">
+
+			<!-- Banner 2 Slider Item -->
+			<div class="owl-item">
+				<div class="banner_2_item">
+					<div class="container fill_height">
+						<div class="row fill_height">
+							<div class="col-lg-4 col-md-6 fill_height">
+								<div class="banner_2_content">
+									<div class="banner_2_category">Laptops</div>
+									<div class="banner_2_title">MacBook Air 13</div>
+									<div class="banner_2_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas fermentum laoreet.</div>
+									<div class="rating_r rating_r_4 banner_2_rating"><i></i><i></i><i></i><i></i><i></i></div>
+									<div class="button banner_2_button"><a href="#">Explore</a></div>
+								</div>
+
+							</div>
+							<div class="col-lg-8 col-md-6 fill_height">
+								<div class="banner_2_image_container">
+									<div class="banner_2_image"><img src="{% static 'home/images/banner_2_product.png' %}" alt=""></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Banner 2 Slider Item -->
+			<div class="owl-item">
+				<div class="banner_2_item">
+					<div class="container fill_height">
+						<div class="row fill_height">
+							<div class="col-lg-4 col-md-6 fill_height">
+								<div class="banner_2_content">
+									<div class="banner_2_category">Laptops</div>
+									<div class="banner_2_title">MacBook Air 13</div>
+									<div class="banner_2_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas fermentum laoreet.</div>
+									<div class="rating_r rating_r_4 banner_2_rating"><i></i><i></i><i></i><i></i><i></i></div>
+									<div class="button banner_2_button"><a href="#">Explore</a></div>
+								</div>
+
+							</div>
+							<div class="col-lg-8 col-md-6 fill_height">
+								<div class="banner_2_image_container">
+									<div class="banner_2_image"><img src="{% static 'home/images/banner_2_product.png' %}" alt=""></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Banner 2 Slider Item -->
+			<div class="owl-item">
+				<div class="banner_2_item">
+					<div class="container fill_height">
+						<div class="row fill_height">
+							<div class="col-lg-4 col-md-6 fill_height">
+								<div class="banner_2_content">
+									<div class="banner_2_category">Laptops</div>
+									<div class="banner_2_title">MacBook Air 13</div>
+									<div class="banner_2_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas fermentum laoreet.</div>
+									<div class="rating_r rating_r_4 banner_2_rating"><i></i><i></i><i></i><i></i><i></i></div>
+									<div class="button banner_2_button"><a href="#">Explore</a></div>
+								</div>
+
+							</div>
+							<div class="col-lg-8 col-md-6 fill_height">
+								<div class="banner_2_image_container">
+									<div class="banner_2_image"><img src="{% static 'home/images/banner_2_product.png' %}" alt=""></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<!-- Recently Viewed -->
+
+<div class="viewed">
+	<div class="container">
+		<div class="row">
+			<div class="col">
+				<div class="viewed_title_container">
+					<h3 class="viewed_title">Recently Viewed</h3>
+					<div class="viewed_nav_container">
+						<div class="viewed_nav viewed_prev"><i class="fas fa-chevron-left"></i></div>
+						<div class="viewed_nav viewed_next"><i class="fas fa-chevron-right"></i></div>
+					</div>
+				</div>
+
+				<div class="viewed_slider_container">
+
+					<!-- Recently Viewed Slider -->
+
+					<div class="owl-carousel owl-theme viewed_slider">
+
+						<!-- Recently Viewed Item -->
+						{% for item in product_session %}
+						<div class="owl-item">
+							<div class="viewed_item d-flex flex-column align-items-center justify-content-center text-center">
+								<div class="viewed_image"><img src="{{ item.image.url }}" alt=""></div>
+								<div class="viewed_content text-center">
+									<div class="viewed_price">{{item.price}}</div>
+									<div class="viewed_name"><a href="#">{{item.product_name}}</a></div>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

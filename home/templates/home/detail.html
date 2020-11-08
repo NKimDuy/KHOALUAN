@@ -1,0 +1,173 @@
+{% extends "home/basic.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div id="dialog" style="display:none;">
+            <canvas id="bar-chart"></canvas>
+            <div id ='click'></div>
+            <div id ='like'></div>
+            <div id ='dislike'></div>
+        </div>
+        <div class="row">
+            <div class = "col-sm-4">
+                <img src="{{ detail_product.image.url }}" alt="">
+            </div>
+            <div class = "col-sm-8">
+                <p style = "font-size:40px;">{{ detail_product.product_name }}</p>
+                <p style = "font-size:20px;color:red;">{{ detail_product.price }}</p>
+                <p style = "font-size:20px;">{{ detail_product.description }}</p>
+                <p>
+                    <button id = "btn{{detail_product.id}}">Thống kê sản phẩm</button>
+                    <script language="javascript">
+                        $(document).ready(function() {
+                            $("#btn{{detail_product.id}}").click(function() {
+
+                                $.get({
+                                    url:"{% url 'statistical' %}",
+                                    data: {
+                                        'id':{{detail_product.id}}
+                                    },
+                                    dataType: 'json',
+                                    success: function(result) {
+                                        $("#click").text("số lần được click vào: " + result.click);
+                                        $("#like").text("số lần được thích: " + result.like);
+                                        $("#dislike").text("số lần không thích: " + result.dislike);
+
+                                        Chart.defaults.global.defaultFontColor = '#000000';
+                                        Chart.defaults.global.defaultFontFamily = 'Arial';
+                                        var barChart = $('#bar-chart');
+                                        var myChart = new Chart(barChart, {
+                                            type: 'bar',
+                                            data: {
+                                                labels: ['RHL', 'HL', 'KHL'],
+                                                datasets: [
+                                                    {
+                                                        barPercentage: 0.5,
+                                                        label: '{{detail_product.product_name}}',
+                                                        data: [result.rhl, result.hl, result.khl],
+                                                        backgroundColor: 'rgba(0, 128, 128, 0.3)',
+                                                        borderColor: 'rgba(0, 128, 128, 0.7)',
+                                                        borderWidth: 1
+                                                    }
+                                                ]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                scales: {
+                                                    yAxes: [{
+                                                        ticks: {
+                                                            beginAtZero:true,
+                                                            stepSize: 1
+                                                        }
+                                                    }]
+                                                },
+                                            }
+                                        });
+
+                                        $("#dialog").dialog({
+                                            width: 500,
+                                            modal: true, // không cho phép thao tác các vị trí khác khi dialog xuất hiện
+                                            buttons: {
+                                                Ok: function() { // hủy thông tin hiển thị cũ
+                                                    $( this ).dialog( "destroy" );
+                                                }
+                                            },
+                                            close: function() { // hủy thông tin hiển thị cũ
+                                                $( this ).dialog( "destroy" );
+                                            }
+                                        });
+
+                                    }
+                                });
+                            });
+                        });
+                    </script>
+                    <br>
+                    <button id="btn_add_to_cart{{detail_product.id}}" class="btn btn-outline-primary">Thêm vào giỏ hàng</button>
+                    <button id="buy_product{{detail_product.id}}" class="btn btn-outline-primary">Mua Hàng</button>
+                    <script language="JavaScript">
+                        $(document).ready(function() {
+                            $("#btn_add_to_cart{{detail_product.id}}").click(function() {
+                                {% if user.username %}
+                                    $.get({
+                                        url: "{% url 'buy_product' %}",
+                                        data: {
+                                            'id': {{detail_product.id}}
+                                        },
+                                        dataType: 'json',
+                                        success: function(result) {
+                                            $("#cart_count").text(result['cart_count']);
+                                            alert(result['a']);
+                                        }
+                                    });
+                                {% else %}
+                                    window.location="{% url 'login' %}";
+                                {% endif %}
+                            });
+
+                            $("#buy_product{{detail_product.id}}").click(function() {
+                                {% if user.username %}
+                                    $.get({
+                                        url: "{% url 'buy_product' %}",
+                                        data: {
+                                            'id': {{detail_product.id}}
+                                        },
+                                        dataType: 'json',
+                                        success: function(result) {
+                                            alert(result['a']);
+                                        }
+                                    });
+                                    window.location="{% url 'cart' %}";
+                                {% else %}
+                                    window.location="{% url 'login' %}";
+                                {% endif %}
+
+
+
+                            });
+                        });
+                    </script>
+                </p>
+            </div>
+        </div>
+        <div class = "row">
+            <div class = 'col-1'></div>
+            <div class = 'col-7'>
+                {% if user.username %}
+                <form action="{% url 'detail' detail_product.id %}" method="post">
+                    {% csrf_token %}
+
+                    {{form.content}}
+                    <br>
+                    <input type="submit" value = 'bình luận'>
+                </form>
+                {% endif %}
+                <br>
+                <!--<div><h3>ĐÁNH GIÁ SẢN PHẨM {{re1}}, {{c.content}}</h3></div>-->
+                <div><h3>ĐÁNH GIÁ SẢN PHẨM </h3></div>
+                {% for comment in detail_product.comment.all %}
+                    <p><img src="{% static 'home/images/user.png'%}" alt=""><strong>{{ comment.author }}</strong></p>
+                    <p>{{comment.content}}</p>
+                    <h6 style = 'border-bottom:1px solid black;'><p>{{ comment.date }}</p></h6>
+                {% endfor %}
+            </div>
+            <div class = 'col-4'>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Rất tích cực
+                        <span class="badge badge-primary badge-pill">{{felling.strong_positive}}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Tích cực
+                        <span class="badge badge-primary badge-pill">{{felling.positive}}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Tệ
+                        <span class="badge badge-primary badge-pill">{{felling.negative}}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
